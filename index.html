@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FF14ダンジョン検索</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <link rel="apple-touch-icon" href="icon.png">
+  <style>
+    body { font-family: sans-serif; padding: 1em; }
+    input { width: 100%; padding: 0.8em; font-size: 1.2em; }
+    ul { list-style: none; padding: 0; margin-top: 1em; }
+    li { padding: 0.5em; background: #eee; margin: 0.3em 0; cursor: pointer; }
+    .details { margin-top: 1em; background: #f0f8ff; padding: 1em; border-radius: 8px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>FF14 ダンジョン検索</h1>
+  <input type="text" id="search" placeholder="ダンジョン名の一部を入力…" autocomplete="off" />
+  <ul id="results"></ul>
+  <div class="details" id="details"></div>
+
+  <script>
+    const data = {
+      "真ビスマルク討滅戦": "慌ててボスに乗り移ろうとすると落ちるので注意！\n乗り移らずに浮島から攻撃しても効かない！\n【タンク】青サヌワと緑サヌワを引き離す！【重要】\n後半、雷天候になったら密集してはダメ！",
+      "ソーム・アル": "ブレス範囲が広いので、タンクは正面を外すこと。\n雑魚フェーズはまとめすぎ注意。",
+      "イシュガルド教皇庁": "3ボス前に雑魚が多くMP消耗注意。\n詠唱中断スキルが活躍。"
+      // 他はあとで自由に追加可能
+    };
+
+    const search = document.getElementById('search');
+    const results = document.getElementById('results');
+    const details = document.getElementById('details');
+
+    search.addEventListener('input', () => {
+      const keyword = search.value.trim();
+      results.innerHTML = '';
+      details.textContent = '';
+      if (!keyword) return;
+
+      const matches = Object.keys(data).filter(name => name.includes(keyword));
+      matches.forEach(name => {
+        const li = document.createElement('li');
+        li.textContent = name;
+        li.addEventListener('click', () => {
+          details.textContent = data[name];
+        });
+        results.appendChild(li);
+      });
+    });
+  </script>
+</body>
+</html>
