@@ -68,17 +68,28 @@
       .then(response => response.json())
       .then(json => {
         data = json;
+
         const runSearch = () => {
           const keyword = search.value.trim().toLowerCase();
           const selectedCategory = category.value;
           results.innerHTML = '';
           details.textContent = '';
-          if (!keyword && !selectedCategory) return;
+          if (!keyword) return;
 
-          const matches = Object.entries(data).filter(([name, info]) => {
-            const matchesKeyword = name.includes(keyword) || info.yomi.includes(keyword);
-            const matchesCategory = !selectedCategory || info.category === selectedCategory;
-            return matchesKeyword && matchesCategory;
+          let matches = Object.entries(data).filter(([name, info]) => {
+            const inName = name.includes(keyword);
+            const inYomi = info.yomi && info.yomi.includes(keyword);
+            const categoryMatch = !selectedCategory || info.category === selectedCategory;
+            return categoryMatch && (inName || inYomi);
+          });
+
+          // 「よみがな」の先頭一致に近い順にソート
+          matches.sort(([n1, i1], [n2, i2]) => {
+            const y1 = i1.yomi || '';
+            const y2 = i2.yomi || '';
+            const i1pos = y1.indexOf(keyword);
+            const i2pos = y2.indexOf(keyword);
+            return (i1pos === -1 ? 9999 : i1pos) - (i2pos === -1 ? 9999 : i2pos);
           });
 
           matches.forEach(([name, info]) => {
