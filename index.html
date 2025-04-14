@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -24,33 +25,39 @@
   <div class="details" id="details"></div>
 
   <script>
-    const data = {
-      "真ビスマルク討滅戦": "慌ててボスに乗り移ろうとすると落ちるので注意！\n乗り移らずに浮島から攻撃しても効かない！\n【タンク】青サヌワと緑サヌワを引き離す！【重要】\n後半、雷天候になったら密集してはダメ！",
-      "ソーム・アル": "ブレス範囲が広いので、タンクは正面を外すこと。\n雑魚フェーズはまとめすぎ注意。",
-      "イシュガルド教皇庁": "3ボス前に雑魚が多くMP消耗注意。\n詠唱中断スキルが活躍。"
-      // 他はあとで自由に追加可能
-    };
+    let data = {};
 
     const search = document.getElementById('search');
     const results = document.getElementById('results');
     const details = document.getElementById('details');
 
-    search.addEventListener('input', () => {
-      const keyword = search.value.trim();
-      results.innerHTML = '';
-      details.textContent = '';
-      if (!keyword) return;
+    fetch('data.json')
+      .then(response => response.json())
+      .then(json => {
+        data = json;
+        search.addEventListener('input', () => {
+          const keyword = search.value.trim().toLowerCase();
+          results.innerHTML = '';
+          details.textContent = '';
+          if (!keyword) return;
 
-      const matches = Object.keys(data).filter(name => name.includes(keyword));
-      matches.forEach(name => {
-        const li = document.createElement('li');
-        li.textContent = name;
-        li.addEventListener('click', () => {
-          details.textContent = data[name];
+          const matches = Object.entries(data).filter(([name, info]) => {
+            return name.includes(keyword) || info.yomi.includes(keyword);
+          });
+
+          matches.forEach(([name, info]) => {
+            const li = document.createElement('li');
+            li.textContent = name;
+            li.addEventListener('click', () => {
+              details.textContent = info.detail;
+            });
+            results.appendChild(li);
+          });
         });
-        results.appendChild(li);
+      })
+      .catch(error => {
+        console.error('データ読み込みエラー:', error);
       });
-    });
   </script>
 </body>
 </html>
