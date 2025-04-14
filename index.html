@@ -12,14 +12,46 @@
   <link rel="apple-touch-icon" href="icon.png">
   <style>
     body { font-family: sans-serif; padding: 1em; }
-    input { width: 100%; padding: 0.8em; font-size: 1.2em; }
-    ul { list-style: none; padding: 0; margin-top: 1em; }
-    li { padding: 0.5em; background: #eee; margin: 0.3em 0; cursor: pointer; }
-    .details { margin-top: 1em; background: #f0f8ff; padding: 1em; border-radius: 8px; white-space: pre-wrap; }
+    input, select, .details, #results {
+      width: 100%;
+      font-size: 1.2em;
+      box-sizing: border-box;
+    }
+    input, select {
+      padding: 0.8em;
+      margin-bottom: 1em;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 0;
+    }
+    li {
+      padding: 0.5em;
+      background: #eee;
+      margin: 0.3em 0;
+      cursor: pointer;
+    }
+    .details {
+      background: #f0f8ff;
+      padding: 1em;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      margin-top: 1em;
+    }
   </style>
 </head>
 <body>
   <h1>FF14 ダンジョン検索</h1>
+  <select id="category">
+    <option value="">カテゴリ未選択</option>
+    <option value="レベリング">レベリング</option>
+    <option value="メインクエスト">メインクエスト</option>
+    <option value="ハイレベリング">ハイレベリング</option>
+    <option value="討伐・討滅戦">討伐・討滅戦</option>
+    <option value="アライアンス">アライアンス</option>
+    <option value="ノーマルレイド">ノーマルレイド</option>
+  </select>
   <input type="text" id="search" placeholder="ダンジョン名の一部を入力…" autocomplete="off" />
   <ul id="results"></ul>
   <div class="details" id="details"></div>
@@ -27,6 +59,7 @@
   <script>
     let data = {};
 
+    const category = document.getElementById('category');
     const search = document.getElementById('search');
     const results = document.getElementById('results');
     const details = document.getElementById('details');
@@ -35,14 +68,17 @@
       .then(response => response.json())
       .then(json => {
         data = json;
-        search.addEventListener('input', () => {
+        const runSearch = () => {
           const keyword = search.value.trim().toLowerCase();
+          const selectedCategory = category.value;
           results.innerHTML = '';
           details.textContent = '';
-          if (!keyword) return;
+          if (!keyword && !selectedCategory) return;
 
           const matches = Object.entries(data).filter(([name, info]) => {
-            return name.includes(keyword) || info.yomi.includes(keyword);
+            const matchesKeyword = name.includes(keyword) || info.yomi.includes(keyword);
+            const matchesCategory = !selectedCategory || info.category === selectedCategory;
+            return matchesKeyword && matchesCategory;
           });
 
           matches.forEach(([name, info]) => {
@@ -53,7 +89,10 @@
             });
             results.appendChild(li);
           });
-        });
+        };
+
+        search.addEventListener('input', runSearch);
+        category.addEventListener('change', runSearch);
       })
       .catch(error => {
         console.error('データ読み込みエラー:', error);
