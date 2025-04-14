@@ -83,7 +83,6 @@
             return categoryMatch && (inName || inYomi);
           });
 
-          // 「よみがな」の先頭一致に近い順にソート
           matches.sort(([n1, i1], [n2, i2]) => {
             const y1 = i1.yomi || '';
             const y2 = i2.yomi || '';
@@ -96,6 +95,12 @@
             const li = document.createElement('li');
             li.textContent = name;
             li.addEventListener('click', () => {
+              // 他の候補を非表示
+              results.innerHTML = '';
+              const selectedLi = document.createElement('li');
+              selectedLi.textContent = name;
+              results.appendChild(selectedLi);
+
               details.textContent = info.detail;
             });
             results.appendChild(li);
